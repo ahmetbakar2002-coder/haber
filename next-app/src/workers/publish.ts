@@ -72,8 +72,8 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
       // 2. Tags (from SEO payload)
       if (payload.seo.tags && payload.seo.tags.length > 0) {
         for (const tagName of payload.seo.tags) {
-          const slug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          let dbTag = await tx.tag.findUnique({ where: { name: tagName } });
+          const slug = tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+          let dbTag = await tx.tag.findUnique({ where: { slug } });
           if (!dbTag) {
             dbTag = await tx.tag.create({ data: { name: tagName, slug } });
           } else {
