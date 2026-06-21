@@ -1,4 +1,4 @@
-import { translate } from '@vitalets/google-translate-api';
+import * as deepl from 'deepl-node';
 import keywordExtractor from 'keyword-extractor';
 import nlp from 'compromise';
 
@@ -44,8 +44,19 @@ export async function processNLPEngine(title: string, content: string, sourceNam
     organizations.slice(0, 3).forEach((o: string) => entities.push({ name: o, type: 'TEAM' }));
     places.slice(0, 2).forEach((p: string) => entities.push({ name: p, type: 'LOCATION' }));
 
-    // 2. Translate Title and Content to Turkish using the reliable GTX endpoint
+    // 2. Translate Title and Content to Turkish (DeepL primary, Google GTX fallback)
     const translateText = async (text: string) => {
+      if (process.env.DEEPL_AUTH_KEY) {
+        try {
+          const translator = new deepl.Translator(process.env.DEEPL_AUTH_KEY);
+          const result = await translator.translateText(text, null, 'tr');
+          return result.text;
+        } catch (deeplErr) {
+          console.warn('[NLPEngine] DeepL fail/quota exceeded. Falling back to Google GTX...');
+        }
+      }
+
+      // Fallback: Google Translate GTX (Resilient, Free)
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=tr&dt=t&q=${encodeURIComponent(text)}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Translation failed');
