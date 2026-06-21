@@ -38,8 +38,10 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
     // Prisma Transaction
     const result = await prisma.$transaction(async (tx) => {
       // 1. Article & SEO
-      const article = await tx.article.create({
-        data: {
+      const article = await tx.article.upsert({
+        where: { hash: payload.hash },
+        update: {},
+        create: {
           sourceId: payload.sourceId,
           title: payload.rewrittenTitle,
           slug: payload.seo.metaTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
