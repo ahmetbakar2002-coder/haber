@@ -9,7 +9,7 @@ const RewriteSchema = z.object({
 
 export async function rewriteArticle(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
     Aşağıdaki spor haberini Türk spor medyası standartlarında profesyonelce, tarafsız ve özgün bir dille yeniden yaz. Haberi birebir çevirme veya kopyalama. Gazeteci dili kullan.

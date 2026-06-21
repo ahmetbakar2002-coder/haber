@@ -1,7 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-let currentIndex = 0;
-
 export function getGeminiClient() {
   const keysString = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
   const keys = keysString.split(',').map(k => k.trim()).filter(k => k.length > 0);
@@ -10,8 +8,8 @@ export function getGeminiClient() {
     return new GoogleGenerativeAI('');
   }
   
-  const key = keys[currentIndex % keys.length];
-  currentIndex++;
+  // Pick a purely random key to ensure perfect distribution across all background workers
+  const key = keys[Math.floor(Math.random() * keys.length)];
   
   return new GoogleGenerativeAI(key);
 }

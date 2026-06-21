@@ -11,7 +11,7 @@ const SeoSchema = z.object({
 
 export async function generateSeoData(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
     Aşağıdaki haber için SEO verileri oluştur:

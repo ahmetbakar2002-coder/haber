@@ -12,7 +12,7 @@ const CategorySchema = z.object({
 
 export async function generateAutoCategory(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
     Aşağıdaki haberi analiz ederek kategorizasyon verilerini üret:
