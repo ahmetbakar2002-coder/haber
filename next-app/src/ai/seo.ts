@@ -1,4 +1,4 @@
-import { getGeminiClient } from '@/lib/ai/geminiClient';
+import { executeGeminiPrompt } from '@/lib/ai/geminiClient';
 import { z } from 'zod';
 
 const SeoSchema = z.object({
@@ -11,7 +11,7 @@ const SeoSchema = z.object({
 
 export async function generateSeoData(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
+    
 
     const prompt = `
     Aşağıdaki haber için SEO verileri oluştur:
@@ -28,8 +28,7 @@ export async function generateSeoData(title: string, content: string) {
     }
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const responseText = await executeGeminiPrompt(prompt);
     
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {

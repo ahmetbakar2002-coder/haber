@@ -1,4 +1,4 @@
-import { getGeminiClient } from '@/lib/ai/geminiClient';
+import { executeGeminiPrompt } from '@/lib/ai/geminiClient';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 
 export async function extractEntities(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
+    
     const prompt = `
     Metinden varlıkları (Entity) ve aralarındaki ilişkileri çıkar:
     Başlık: ${title}
@@ -26,8 +26,7 @@ export async function extractEntities(title: string, content: string) {
     Eğer bulamazsan boş dizi [] dön.
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const responseText = await executeGeminiPrompt(prompt);
     const jsonMatch = responseText.match(/\[[\s\S]*\]/);
     
     if (jsonMatch) {

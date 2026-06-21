@@ -1,4 +1,4 @@
-import { getGeminiClient } from '@/lib/ai/geminiClient';
+import { executeGeminiPrompt } from '@/lib/ai/geminiClient';
 import { z } from 'zod';
 
 const CategorySchema = z.object({
@@ -12,7 +12,7 @@ const CategorySchema = z.object({
 
 export async function generateAutoCategory(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
+    
 
     const prompt = `
     Aşağıdaki haberi analiz ederek kategorizasyon verilerini üret:
@@ -30,8 +30,7 @@ export async function generateAutoCategory(title: string, content: string) {
     }
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const responseText = await executeGeminiPrompt(prompt);
     
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {

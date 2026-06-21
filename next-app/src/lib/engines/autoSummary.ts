@@ -1,9 +1,9 @@
-import { getGeminiClient } from '@/lib/ai/geminiClient';
+import { executeGeminiPrompt } from '@/lib/ai/geminiClient';
 
 
 export async function generateAutoSummaries(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
+    
 
     const prompt = `
     Aşağıdaki haber için 3 farklı uzunlukta özet üret:
@@ -22,8 +22,7 @@ export async function generateAutoSummaries(title: string, content: string) {
     }
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const responseText = await executeGeminiPrompt(prompt);
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     
     if (jsonMatch) {

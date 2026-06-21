@@ -8,8 +8,28 @@ export function getGeminiClient() {
     return new GoogleGenerativeAI('');
   }
   
-  // Pick a purely random key to ensure perfect distribution across all background workers
   const key = keys[Math.floor(Math.random() * keys.length)];
-  
   return new GoogleGenerativeAI(key);
+}
+
+export async function executeGeminiPrompt(prompt: string) {
+  const modelsToTry = [
+    'gemini-3.5-flash',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash'
+  ];
+  
+  let lastError;
+  for (const modelName of modelsToTry) {
+    try {
+      const model = getGeminiClient().getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error: any) {
+      console.warn(`[Gemini Fallback] Model ${modelName} failed: ${error.message.substring(0, 100)}`);
+      lastError = error;
+    }
+  }
+  throw lastError;
 }

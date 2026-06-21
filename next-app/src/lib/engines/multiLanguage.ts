@@ -1,4 +1,4 @@
-import { getGeminiClient } from '@/lib/ai/geminiClient';
+import { executeGeminiPrompt } from '@/lib/ai/geminiClient';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -8,7 +8,7 @@ export async function translateArticle(articleId: string, title: string, content
   const languages = ['EN', 'AR'];
   
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
+    
     
     for (const lang of languages) {
       const prompt = `

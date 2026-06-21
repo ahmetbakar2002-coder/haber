@@ -1,4 +1,4 @@
-import { getGeminiClient } from '@/lib/ai/geminiClient';
+import { executeGeminiPrompt } from '@/lib/ai/geminiClient';
 
 
 export async function generatePushNotification(title: string, content: string, isBreaking: boolean, isMilli: boolean) {
@@ -7,7 +7,7 @@ export async function generatePushNotification(title: string, content: string, i
   }
 
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
+    
     const prompt = `
     Bu önemli spor haberi için mobil uygulamada gönderilecek çarpıcı bir bildirim başlığı ve metni oluştur.
     Başlık: ${title}
@@ -20,8 +20,7 @@ export async function generatePushNotification(title: string, content: string, i
     }
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const responseText = await executeGeminiPrompt(prompt);
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     
     if (jsonMatch) {
