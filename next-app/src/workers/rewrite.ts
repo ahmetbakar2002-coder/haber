@@ -22,7 +22,7 @@ export const rewriteNewsWorker = new Worker('rewrite-news', async (job: Job) => 
   } catch (error: any) {
     throw error;
   }
-}, { connection, concurrency: 5, limiter: { max: 50, duration: 60000 } });
+}, { connection, concurrency: 1, limiter: { max: 1, duration: 15000 } });
 
 rewriteNewsWorker.on('failed', async (job, err) => {
   console.error(`[Rewrite Worker] Job ${job?.id} failed: ${err.message}`);

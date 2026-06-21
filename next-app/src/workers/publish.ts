@@ -130,7 +130,7 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
   } catch (error: any) {
     throw error;
   }
-}, { connection, concurrency: 5, limiter: { max: 100, duration: 60000 } });
+}, { connection, concurrency: 1, limiter: { max: 1, duration: 15000 } });
 
 publishNewsWorker.on('failed', async (job, err) => {
   console.error(`[Publish Worker] Job ${job?.id} failed: ${err.message}`);
