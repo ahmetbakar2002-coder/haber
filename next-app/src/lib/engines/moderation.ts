@@ -8,8 +8,8 @@ export function moderateArticle(title: string, content: string, sourceUrl?: stri
     return { passed: false, reason: "Başlık boş." };
   }
 
-  if (!content || content.trim().length < 100) {
-    return { passed: false, reason: "İçerik çok kısa (100 karakterden az)." };
+  if (!content || content.trim().length < 20) {
+    return { passed: false, reason: "İçerik çok kısa (20 karakterden az)." };
   }
 
   if (!sourceUrl || sourceUrl.trim() === '') {
