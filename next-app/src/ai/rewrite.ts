@@ -10,7 +10,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function rewriteArticle(title: string, content: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
     Aşağıdaki spor haberini Türk spor medyası standartlarında profesyonelce, tarafsız ve özgün bir dille yeniden yaz. Haberi birebir çevirme veya kopyalama. Gazeteci dili kullan.
