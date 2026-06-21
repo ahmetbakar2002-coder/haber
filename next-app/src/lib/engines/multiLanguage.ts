@@ -25,8 +25,8 @@ export async function translateArticle(articleId: string, title: string, content
       }
       `;
       
-      const result = await model.generateContent(prompt);
-      const match = result.response.text().match(/\{[\s\S]*\}/);
+      const responseText = await executeGeminiPrompt(prompt);
+      const match = responseText.match(/\{[\s\S]*\}/);
       if (match) {
         const trans = JSON.parse(match[0]);
         await prisma.articleTranslation.create({
