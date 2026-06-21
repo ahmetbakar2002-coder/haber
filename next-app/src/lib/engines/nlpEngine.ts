@@ -44,14 +44,20 @@ export async function processNLPEngine(title: string, content: string, sourceNam
     organizations.slice(0, 3).forEach((o: string) => entities.push({ name: o, type: 'TEAM' }));
     places.slice(0, 2).forEach((p: string) => entities.push({ name: p, type: 'LOCATION' }));
 
-    // 2. Translate Title and Content to Turkish
-    const translatedTitleRes = await translate(title, { to: 'tr' });
-    const translatedTitle = translatedTitleRes.text;
+    // 2. Translate Title and Content to Turkish using the reliable GTX endpoint
+    const translateText = async (text: string) => {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=tr&dt=t&q=${encodeURIComponent(text)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Translation failed');
+      const json = await res.json();
+      return json[0].map((item: any) => item[0]).join('');
+    };
+
+    const translatedTitle = await translateText(title);
 
     // Google Translate API has text limits, we chunk content or just translate the first 3000 chars
     const contentToTranslate = content.length > 3000 ? content.substring(0, 3000) + '...' : content;
-    const translatedContentRes = await translate(contentToTranslate, { to: 'tr' });
-    const translatedContent = translatedContentRes.text;
+    const translatedContent = await translateText(contentToTranslate);
 
     // Clean up content by splitting into paragraphs
     const paragraphs = translatedContent.split('\n').filter(p => p.trim().length > 0);
