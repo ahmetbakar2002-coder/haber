@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 
 export async function extractEntities(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = `
     Metinden varlıkları (Entity) ve aralarındaki ilişkileri çıkar:
     Başlık: ${title}

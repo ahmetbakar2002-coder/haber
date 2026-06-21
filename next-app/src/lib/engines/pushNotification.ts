@@ -7,7 +7,7 @@ export async function generatePushNotification(title: string, content: string, i
   }
 
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = `
     Bu önemli spor haberi için mobil uygulamada gönderilecek çarpıcı bir bildirim başlığı ve metni oluştur.
     Başlık: ${title}
