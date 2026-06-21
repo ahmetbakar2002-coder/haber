@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 import { z } from 'zod';
 
 const RewriteSchema = z.object({
@@ -6,11 +6,10 @@ const RewriteSchema = z.object({
   rewrittenContent: z.string()
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function rewriteArticle(title: string, content: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
     Aşağıdaki spor haberini Türk spor medyası standartlarında profesyonelce, tarafsız ve özgün bir dille yeniden yaz. Haberi birebir çevirme veya kopyalama. Gazeteci dili kullan.

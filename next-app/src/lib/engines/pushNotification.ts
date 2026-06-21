@@ -1,6 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function generatePushNotification(title: string, content: string, isBreaking: boolean, isMilli: boolean) {
   if (!isBreaking && !isMilli && !title.toLowerCase().includes('transfer')) {
@@ -8,7 +7,7 @@ export async function generatePushNotification(title: string, content: string, i
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `
     Bu önemli spor haberi için mobil uygulamada gönderilecek çarpıcı bir bildirim başlığı ve metni oluştur.
     Başlık: ${title}

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 import { z } from 'zod';
 
 const CategorySchema = z.object({
@@ -9,11 +9,10 @@ const CategorySchema = z.object({
   tags: z.array(z.string())
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function generateAutoCategory(title: string, content: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
     Aşağıdaki haberi analiz ederek kategorizasyon verilerini üret:

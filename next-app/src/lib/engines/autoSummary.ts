@@ -1,10 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function generateAutoSummaries(title: string, content: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
     Aşağıdaki haber için 3 farklı uzunlukta özet üret:

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 import { z } from 'zod';
 
 const SeoSchema = z.object({
@@ -8,11 +8,10 @@ const SeoSchema = z.object({
   tags: z.array(z.string())
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function generateSeoData(title: string, content: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `
     Aşağıdaki haber için SEO verileri oluştur:

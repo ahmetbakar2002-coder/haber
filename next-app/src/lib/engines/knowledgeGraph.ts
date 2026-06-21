@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
@@ -8,12 +8,11 @@ const EntitySchema = z.array(z.object({
   attributes: z.record(z.any()).optional().nullable()
 }));
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const prisma = new PrismaClient();
 
 export async function extractEntities(title: string, content: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `
     Metinden varlıkları (Entity) ve aralarındaki ilişkileri çıkar:
     Başlık: ${title}

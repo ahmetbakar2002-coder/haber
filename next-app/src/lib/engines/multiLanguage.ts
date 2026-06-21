@@ -1,7 +1,6 @@
+import { getGeminiClient } from '@/lib/ai/geminiClient';
 import { PrismaClient } from '@prisma/client';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const prisma = new PrismaClient();
 
 export async function translateArticle(articleId: string, title: string, content: string, summaryShort?: string) {
@@ -9,7 +8,7 @@ export async function translateArticle(articleId: string, title: string, content
   const languages = ['EN', 'AR'];
   
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     for (const lang of languages) {
       const prompt = `
