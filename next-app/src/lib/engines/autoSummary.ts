@@ -3,7 +3,7 @@ import { getGeminiClient } from '@/lib/ai/geminiClient';
 
 export async function generateAutoSummaries(title: string, content: string) {
   try {
-    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getGeminiClient().getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const prompt = `
     Aşağıdaki haber için 3 farklı uzunlukta özet üret:
