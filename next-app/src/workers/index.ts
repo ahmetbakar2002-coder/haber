@@ -1,6 +1,5 @@
 export { rawNewsWorker } from './raw';
 export { rewriteNewsWorker } from './rewrite';
-export { seoNewsWorker } from './seo';
 export { publishNewsWorker } from './publish';
 import { setupCronJobs } from './cron';
 export { cronWorker, setupCronJobs } from './cron';

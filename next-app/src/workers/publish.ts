@@ -5,10 +5,6 @@ import { calculateSourcePriority } from '@/lib/engines/sourcePriority';
 import { calculateSocialVirality } from '@/lib/engines/socialVirality';
 import { calculateTransferConfidence } from '@/lib/engines/transferConfidence';
 import { isBreakingNews } from '@/lib/engines/breakingNews';
-import { detectMilliHaber } from '@/lib/engines/milliHaber';
-import { generatePushNotification } from '@/lib/engines/pushNotification';
-import { extractEntities } from '@/lib/engines/knowledgeGraph';
-import { generateTimelineEvent } from '@/lib/engines/autoTimeline';
 import { publishToForum } from '@/lib/engines/forumIntegration';
 
 const connection = { url: process.env.REDIS_URL || 'redis://localhost:6379' };
@@ -26,14 +22,12 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
 
     // Flags
     const isBreaking = isBreakingNews(payload.rewrittenTitle, payload.rewrittenContent);
-    const isMilli = await detectMilliHaber(payload.rewrittenTitle, payload.rewrittenContent);
+    const isMilli = payload.isMilliHaber;
 
-    // Prepare push (async but fast)
-    const push = await generatePushNotification(payload.rewrittenTitle, payload.rewrittenContent, isBreaking, isMilli);
-
-    // Pre-extract AI relations before transaction
-    const entities = await extractEntities(payload.rewrittenTitle, payload.rewrittenContent);
-    const timelineEvent = await generateTimelineEvent(payload.rewrittenTitle);
+    // Use push, entities, and timeline directly from the SuperPayload
+    const push = payload.pushNotification;
+    const entities = payload.entities;
+    const timelineEvent = payload.timelineEvent;
 
     // Prisma Transaction
     const result = await prisma.$transaction(async (tx) => {
