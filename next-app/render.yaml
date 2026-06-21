@@ -1,0 +1,20 @@
+services:
+  # ÇAKÜ Spor Newsroom (BullMQ Workers + Next.js Server)
+  - type: web
+    name: caku-spor-newsroom
+    env: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    # Make sure your project Root Directory on Render is set to "next-app"
+    # Env vars to configure on Render Dashboard:
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Set manually in Render dashboard
+      - key: REDIS_URL
+        sync: false # Set manually in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false # Set manually in Render dashboard
+      - key: FORUM_API_URL
+        value: "https://cakuspor.com/api/webhook/news"
+      - key: CRON_SECRET
+        value: "cakuspor-cron-2026"

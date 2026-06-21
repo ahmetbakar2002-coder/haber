@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Empty config for now, suitable for starting the project
+  experimental: {
+    instrumentationHook: true,
+  },
 };
 
 export default nextConfig;

@@ -9,6 +9,7 @@ import { detectMilliHaber } from '@/lib/engines/milliHaber';
 import { generatePushNotification } from '@/lib/engines/pushNotification';
 import { extractEntities } from '@/lib/engines/knowledgeGraph';
 import { generateTimelineEvent } from '@/lib/engines/autoTimeline';
+import { publishToForum } from '@/lib/engines/forumIntegration';
 
 const connection = { url: process.env.REDIS_URL || 'redis://localhost:6379' };
 const prisma = new PrismaClient();
@@ -121,6 +122,10 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
     });
 
     console.log(`[Publish Worker] Successfully published article ID: ${result.id}`);
+
+    // Call forum integration
+    const categoryHint = payload.seo?.tags?.[0] || 'spor';
+    await publishToForum(result, categoryHint);
 
   } catch (error: any) {
     throw error;
