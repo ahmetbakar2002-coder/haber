@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
 import { publishNewsQueue, deadLetterQueue } from '@/queues';
-import { processSuperPrompt } from '@/lib/ai/superAgent';
+import { processNLPEngine } from '@/lib/engines/nlpEngine';
 
 const connection = { url: process.env.REDIS_URL || 'redis://localhost:6379' };
 
@@ -10,7 +10,7 @@ export const rewriteNewsWorker = new Worker('rewrite-news', async (job: Job) => 
     const rawPayload = job.data;
     
     // 1 AI call does EVERYTHING
-    const superResult = await processSuperPrompt(rawPayload.title, rawPayload.summary, rawPayload.sourceName);
+    const superResult = await processNLPEngine(rawPayload.title, rawPayload.summary, rawPayload.sourceName);
     
     // Push directly to Publish Queue, passing the massive payload
     await publishNewsQueue.add('publish-job', {
