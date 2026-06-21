@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
 import { publishNewsQueue, deadLetterQueue } from '@/queues';
-import { processNLPEngine } from '@/lib/engines/nlpEngine';
+import { processSuperPrompt } from '@/lib/ai/superAgent';
 
 const connection = { url: process.env.REDIS_URL || 'redis://localhost:6379' };
 
@@ -9,8 +9,8 @@ export const rewriteNewsWorker = new Worker('rewrite-news', async (job: Job) => 
   try {
     const rawPayload = job.data;
     
-    // 1 AI call does EVERYTHING
-    const superResult = await processNLPEngine(rawPayload.title, rawPayload.summary, rawPayload.sourceName);
+    // 1 AI call does EVERYTHING (Translates to Turkish, extracts SEO, summaries, etc)
+    const superResult = await processSuperPrompt(rawPayload.title, rawPayload.summary, rawPayload.sourceName);
     
     // Push directly to Publish Queue, passing the massive payload
     await publishNewsQueue.add('publish-job', {
@@ -28,7 +28,7 @@ export const rewriteNewsWorker = new Worker('rewrite-news', async (job: Job) => 
   } catch (error: any) {
     throw error;
   }
-}, { connection, concurrency: 1, limiter: { max: 1, duration: 15000 } });
+}, { connection, concurrency: 1, limiter: { max: 1, duration: 6000 } });
 
 rewriteNewsWorker.on('failed', async (job, err) => {
   console.error(`[Rewrite Worker] Job ${job?.id} failed: ${err.message}`);

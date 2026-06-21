@@ -33,8 +33,8 @@ Article Content: ${content}
 Source: ${sourceName || 'Unknown'}
 
 Instructions:
-1. Rewrite the article to be engaging, professional, and unique (avoid plagiarism).
-2. Generate 3 summaries (short, medium, long).
+1. Translate and rewrite the article into TURKISH to be engaging, professional, and unique (avoid plagiarism). All text outputs MUST be in Turkish.
+2. Generate 3 summaries in Turkish (short, medium, long).
 3. Generate SEO metadata (metaTitle, metaDescription, focusKeyword, and up to 5 tags).
 4. Determine if this news is strongly related to Turkish national teams or Turkish athletes (isMilliHaber: true/false).
 5. If the news is highly important, generate a push notification title and body. Otherwise, set pushNotification to null.
