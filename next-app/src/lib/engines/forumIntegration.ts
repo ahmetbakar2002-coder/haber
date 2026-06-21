@@ -4,13 +4,23 @@ const FORUM_API_URL = process.env.FORUM_API_URL || 'http://localhost:3000/api/we
 const CRON_SECRET = process.env.CRON_SECRET || 'cakuspor-cron-2026';
 
 export async function publishToForum(article: Article, categorySlug: string) {
-  // Kategori slug'ını forum kanallarıyla eşleştir (Varsayılan: spor-haberleri)
   let channelName = 'spor-haberleri';
   
-  if (categorySlug === 'dunya' || categorySlug === 'avrupa' || categorySlug === 'ingiltere') {
-    channelName = 'dunya-spor';
-  } else if (categorySlug === 'espor' || categorySlug === 'e-spor') {
+  const textToScan = `${article.title} ${article.content} ${categorySlug}`.toLowerCase();
+
+  // E-spor kontrolü
+  const esporKeywords = ['espor', 'e-spor', 'esports', 'cs:go', 'cs2', 'valorant', 'league of legends', 'lol', 'dota', 'hltv', 'fut esports', 'bbl', 'papara supermassive'];
+  const isEspor = esporKeywords.some(kw => textToScan.includes(kw));
+
+  // Dünya Spor kontrolü
+  const dunyaKeywords = ['dünya', 'dunya', 'avrupa', 'şampiyonlar ligi', 'euroleague', 'formula 1', 'f1', 'wimbledon', 'roland garros', 'nba', 'premier lig', 'elmas lig', 'diamond league', 'olimpiyat'];
+  const isDunya = dunyaKeywords.some(kw => textToScan.includes(kw));
+
+  if (isEspor) {
     channelName = 'espor-haberleri';
+  } else if (isDunya && !article.isMilliHaber) {
+    // Milli takım haberlerini dünya spora değil, ana spor haberlerine atabiliriz
+    channelName = 'dunya-spor';
   }
 
   // Forum için Markdown formatında mesaj oluştur
