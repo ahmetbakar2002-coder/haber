@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-service
+  labels:
+    app: rss-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: rss-service
+  template:
+    metadata:
+      labels:
+        app: rss-service
+    spec:
+      containers:
+      - name: rss-service
+        image: caku/rss-service:latest
+        env:
+        - name: KAFKA_BROKERS
+          value: "kafka:9092"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rss-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rss-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
