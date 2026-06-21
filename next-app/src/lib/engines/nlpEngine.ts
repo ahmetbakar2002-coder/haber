@@ -45,7 +45,7 @@ export async function processNLPEngine(title: string, content: string, sourceNam
     places.slice(0, 2).forEach((p: string) => entities.push({ name: p, type: 'LOCATION' }));
 
     // 2. Translate Title and Content to Turkish (DeepL primary, Google GTX fallback)
-    const translateText = async (text: string) => {
+    const translateText = async (text: string): Promise<string> => {
       if (process.env.DEEPL_AUTH_KEY) {
         try {
           const translator = new deepl.Translator(process.env.DEEPL_AUTH_KEY);
@@ -71,8 +71,8 @@ export async function processNLPEngine(title: string, content: string, sourceNam
     const translatedContent = await translateText(contentToTranslate);
 
     // Clean up content by splitting into paragraphs
-    const paragraphs = translatedContent.split('\n').filter(p => p.trim().length > 0);
-    const htmlContent = paragraphs.map(p => `<p>${p}</p>`).join('');
+    const paragraphs = translatedContent.split('\n').filter((p: string) => p.trim().length > 0);
+    const htmlContent = paragraphs.map((p: string) => `<p>${p}</p>`).join('');
 
     // 3. Summarization (Extractive simple approach)
     // We'll use the first 1-3 sentences for summaries
