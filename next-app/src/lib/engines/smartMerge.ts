@@ -7,12 +7,12 @@ export async function attemptSmartMerge(title: string, summary: string): Promise
   // we check if an article is highly similar to an existing one (e.g. transfer news).
   // If it is, we return the parentArticleId so the pipeline can merge them.
   
-  // Real implementation using pg_trgm similarity on both title and content.
-  // Entity similarity can be checked logically if passed, or we assume title/content overlap is strong enough.
+  // Real implementation using standard SQL ILIKE instead of pg_trgm similarity
+  // This avoids needing to install the pg_trgm extension in the database.
   const similarArticles = await prisma.$queryRaw<any[]>`
     SELECT id
     FROM "Article"
-    WHERE (similarity(title, ${title}) > 0.80 OR similarity("rawContent", ${summary}) > 0.75)
+    WHERE (title ILIKE ${'%' + title + '%'} OR "rawContent" ILIKE ${'%' + summary + '%'})
     AND "isMergedParent" = false
     LIMIT 1;
   `;
