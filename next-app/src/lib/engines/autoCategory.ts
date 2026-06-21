@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 
 const CategorySchema = z.object({
