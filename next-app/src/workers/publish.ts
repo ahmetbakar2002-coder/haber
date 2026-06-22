@@ -76,7 +76,12 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
           } else {
             dbTag = await tx.tag.update({ where: { id: dbTag.id }, data: { usageCount: { increment: 1 } } });
           }
-          await tx.articleTag.create({ data: { articleId: article.id, tagId: dbTag.id } });
+          const existingTagLink = await tx.articleTag.findFirst({
+            where: { articleId: article.id, tagId: dbTag.id }
+          });
+          if (!existingTagLink) {
+            await tx.articleTag.create({ data: { articleId: article.id, tagId: dbTag.id } });
+          }
         }
       }
 
