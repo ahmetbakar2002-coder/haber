@@ -9,8 +9,8 @@ export async function publishToForum(article: Article, categorySlug: string) {
   const textToScan = `${article.title} ${article.content} ${categorySlug}`.toLowerCase();
 
   // E-spor kontrolü (Kaynak kategorisi VEYA metin içindeki kelimeler)
-  const esporKategorileri = ['cs2', 'valorant', 'lol', 'mlbb', 'clash royale'];
-  const esporKeywords = ['espor', 'e-spor', 'esports', 'cs:go', 'cs2', 'valorant', 'league of legends', 'lol', 'dota', 'hltv', 'fut esports', 'bbl', 'papara supermassive'];
+  const esporKategorileri = ['cs2', 'valorant', 'lol', 'mlbb', 'clash royale', 'espor', 'e-spor'];
+  const esporKeywords = ['espor', 'e-spor', 'esports', 'cs:go', 'cs2', 'valorant', 'league of legends', 'lol', 'dota', 'hltv', 'fut esports', 'bbl', 'papara supermassive', 'leviatán', 'paper rex', 'prx', 'masters', 'vct', 'champions tour', 'fnatic', 'karmine corp', 'team liquid', 'navi'];
   const isEspor = esporKategorileri.includes(categorySlug.toLowerCase()) || esporKeywords.some(kw => textToScan.includes(kw));
 
   // Dünya Spor kontrolü (Kaynak kategorisi VEYA metin içindeki kelimeler)

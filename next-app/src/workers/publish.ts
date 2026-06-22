@@ -32,6 +32,12 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
 
     // Prisma Transaction
     const result = await prisma.$transaction(async (tx) => {
+      // Check if it already exists before doing the upsert
+      const existing = await tx.article.findUnique({ where: { hash: payload.hash } });
+      if (existing) {
+        return { article: existing, isNew: false };
+      }
+
       // 1. Article & SEO
       const article = await tx.article.upsert({
         where: { hash: payload.hash },
@@ -120,15 +126,20 @@ export const publishNewsWorker = new Worker('publish-news', async (job: Job) => 
         });
       }
 
-      return article;
+      return { article, isNew: true };
     });
 
-    console.log(`[Publish Worker] Successfully published article ID: ${result.id}`);
+    if (!result.isNew) {
+      console.log(`[Publish Worker] Article ${result.article.id} already published, skipping forum push.`);
+      return;
+    }
+
+    console.log(`[Publish Worker] Successfully published article ID: ${result.article.id}`);
 
     // Call forum integration
     const sourceData = SOURCES.find(s => s.id === payload.sourceId);
     const categoryHint = sourceData?.category || payload.seo?.tags?.[0] || 'spor';
-    await publishToForum(result, categoryHint);
+    await publishToForum(result.article, categoryHint);
 
   } catch (error: any) {
     throw error;

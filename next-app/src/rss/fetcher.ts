@@ -46,6 +46,14 @@ export async function fetchAllRssSources() {
         const exists = await prisma.article.findUnique({ where: { hash } });
         if (exists) continue;
 
+        // Check if it's currently processing in Redis (to prevent duplicate queues)
+        const { cacheClient } = await import('@/lib/redis/client');
+        const isProcessing = await cacheClient.get(`processing:${hash}`);
+        if (isProcessing) continue;
+
+        // Mark as processing for 24 hours
+        await cacheClient.set(`processing:${hash}`, '1', 'EX', 86400);
+
         // Try extracting image from standard RSS fields or custom media:content
         let imageUrl = undefined;
         if (item['media:content'] && item['media:content']['$'] && item['media:content']['$'].url) {
