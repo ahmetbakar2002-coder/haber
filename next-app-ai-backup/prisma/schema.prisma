@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Source {
+  id              String    @id @default(uuid())
+  name            String    @unique
+  type            SourceType
+  url             String
+  rssUrl          String?
+  apiEndpoint     String?
+  country         String?
+  language        String    @default("tr")
+  trustScore      Int       @default(50)
+  status          SourceStatus @default(ACTIVE)
+  lastCheckedAt   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  articles        Article[]
+  mergedSources   MergedArticleSource[]
+}
+
+model Category {
+  id              String    @id @default(uuid())
+  name            String
+  slug            String    @unique
+  parentId        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  parent          Category? @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children        Category[] @relation("CategoryToCategory")
+  articles        Article[]
+}
+
+model Article {
+  id              String    @id @default(uuid())
+  sourceId        String
+  categoryId      String?
+  title           String
+  slug            String    @unique
+  summary         String?
+  content         String    @db.Text
+  rawContent      String?   @db.Text
+  language        String    @default("tr") // TR, EN, AR for Multi-Language Engine
+  
+  // Scoring & AI Generated Flags
+  verificationScore Int     @default(0)
+  priorityScore   Int       @default(0)
+  trendScore      Float     @default(0.0)
+  viralityScore   Int       @default(0) // Social Virality Engine
+  transferConfidence Int?   // Transfer Confidence Engine
+  
+  // Boolean Flags
+  isBreaking      Boolean   @default(false)
+  isMilliHaber    Boolean   @default(false)
+  isMergedParent  Boolean   @default(false) // Smart News Merge Engine
+  
+  // Relations
+  parentArticleId String?   // Smart News Merge Engine
+  parentArticle   Article?  @relation("MergedArticles", fields: [parentArticleId], references: [id])
+  childArticles   Article[] @relation("MergedArticles")
+
+  // Auto Summaries
+  summaryShort    String?   @db.Text // 1 sentence
+  summaryMedium   String?   @db.Text // 30 words
+  summaryLong     String?   @db.Text // 100 words
+
+  // Push Notifications
+  notificationTitle String?
+  notificationBody  String?
+
+  imageUrl        String?
+  hash            String    @unique
+  status          ArticleStatus @default(PENDING)
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  source          Source    @relation(fields: [sourceId], references: [id])
+  category        Category? @relation(fields: [categoryId], references: [id])
+  
+  tags            ArticleTag[]
+  seoData         SeoData?
+  liveUpdates     ArticleUpdate[]
+  timelineEvents  TimelineEvent[]
+  entities        ArticleEntity[]
+  translations    ArticleTranslation[]
+  mergedSources   MergedArticleSource[]
+}
+
+// Support for Multi-Language Engine
+model ArticleTranslation {
+  id              String    @id @default(uuid())
+  articleId       String
+  language        String    // EN, AR, etc.
+  title           String
+  content         String    @db.Text
+  summaryShort    String?   @db.Text
+  createdAt       DateTime  @default(now())
+
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  @@unique([articleId, language])
+}
+
+// Stores sources for merged articles
+model MergedArticleSource {
+  articleId       String
+  sourceId        String
+  url             String
+  
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  source          Source    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, sourceId])
+}
+
+model ArticleUpdate {
+  id              String    @id @default(uuid())
+  articleId       String
+  updateType      String
+  content         String    @db.Text
+  createdAt       DateTime  @default(now())
+
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
+
+// Auto Timeline Engine
+model TimelineEvent {
+  id              String    @id @default(uuid())
+  articleId       String
+  topic           String    // e.g. "Osimhen Transfer Süreci"
+  eventDate       DateTime
+  description     String
+  createdAt       DateTime  @default(now())
+
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
+
+// Entity Extraction & Knowledge Graph Engine
+model KnowledgeEntity {
+  id              String    @id @default(uuid())
+  name            String    @unique
+  type            String    // "PLAYER", "TEAM", "LEAGUE", "MANAGER", "REFEREE", "COUNTRY", "STADIUM"
+  attributes      Json?     // Stores relationships e.g. { "currentTeam": "Galatasaray", "country": "Nijerya" }
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  articles        ArticleEntity[]
+  relationsFrom   EntityRelation[] @relation("EntityFrom")
+  relationsTo     EntityRelation[] @relation("EntityTo")
+}
+
+// Graph edges between entities
+model EntityRelation {
+  id              String    @id @default(uuid())
+  fromEntityId    String
+  toEntityId      String
+  relationType    String    // e.g. "PLAYS_FOR", "LOCATED_IN", "MANAGED_BY"
+  
+  fromEntity      KnowledgeEntity @relation("EntityFrom", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntity        KnowledgeEntity @relation("EntityTo", fields: [toEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([fromEntityId, toEntityId, relationType])
+}
+
+model ArticleEntity {
+  articleId       String
+  entityId        String
+  
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  entity          KnowledgeEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, entityId])
+}
+
+model Tag {
+  id              String    @id @default(uuid())
+  name            String    @unique
+  slug            String    @unique
+  usageCount      Int       @default(0)
+  createdAt       DateTime  @default(now())
+
+  articles        ArticleTag[]
+}
+
+model ArticleTag {
+  articleId       String
+  tagId           String
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag             Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+}
+
+model SeoData {
+  id              String    @id @default(uuid())
+  articleId       String    @unique
+  metaTitle       String
+  metaDescription String
+  canonicalUrl    String
+  ogTitle         String?
+  ogDescription   String?
+  twitterTitle    String?
+  twitterDescription String?
+  focusKeyword    String?
+  createdAt       DateTime  @default(now())
+
+  article         Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
+
+enum SourceType {
+  RSS
+  API
+  WEBSITE
+  SOCIAL_MEDIA
+}
+
+enum SourceStatus {
+  ACTIVE
+  INACTIVE
+  FAILING
+}
+
+enum ArticleStatus {
+  PENDING
+  STANDARD
+  PUBLISHED
+  HIGHLIGHTED
+  FEATURED
+  REJECTED
+}
